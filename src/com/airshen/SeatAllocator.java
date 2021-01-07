@@ -1,19 +1,21 @@
-package com.test;
+package com.airshen;
 
 import java.util.Scanner;
 
-public class TestMain1 {
+public class SeatAllocator {
+    int lastRow = 0;
+    int totalColumn = 0;
+    int numOfSeats = 0;
+
     public static void main(String[] args) {
 
         Scanner scanner = new Scanner(System.in);
 
-        // inputs and initial calculations part
         System.out.print("Enter number of segments:");
         int segmnts = scanner.nextInt();
         scanner.nextLine();
 
         int[][] limit = new int[segmnts][2];
-        int lastRow = 0, totalColumn = 0; int numOfSeats = 0;
 
         for(int seg = 0; seg < segmnts; seg++) {
             System.out.printf("Enter segment %d row and column (r,c):", seg + 1);
@@ -21,19 +23,33 @@ public class TestMain1 {
             limit[seg][0] = Integer.parseInt(rowAndCol[1]);
             limit[seg][1] = Integer.parseInt(rowAndCol[0]);
             // In the given problem, rows and columns are interchanged.
-
-            lastRow = Math.max(lastRow, limit[seg][0]);
-            totalColumn += limit[seg][1];
-            numOfSeats += limit[seg][0] * limit[seg][1];
         }
-
-        int[][] plane = new int[lastRow][totalColumn];
 
         System.out.print("Enter number of Passengers:");
         int passengers = scanner.nextInt();
         scanner.nextLine();
 
-        // seat filling part
+        scanner.close();
+
+        SeatAllocator seatAllocator = new SeatAllocator();
+        int[][] plane = seatAllocator.fillSeats(segmnts, limit, passengers);
+        seatAllocator.printSeats(plane, limit, passengers);
+
+    }
+
+    private void setParams(int[][] limit) {
+        for(int seg = 0; seg < limit.length; seg++) {
+            lastRow = Math.max(lastRow, limit[seg][0]);
+            totalColumn += limit[seg][1];
+            numOfSeats += limit[seg][0] * limit[seg][1];
+        }
+    }
+
+    public int[][] fillSeats(int segmnts, int[][] limit, int passengers) {
+
+        setParams(limit);
+
+        int[][] plane = new int[lastRow][totalColumn];
         int seatType = 1;   // initially aisle
         int passenger = 1;
         while (passenger <= passengers && passenger <= numOfSeats) {
@@ -80,8 +96,10 @@ public class TestMain1 {
             }
             seatType++;
         }
+        return plane;
+    }
 
-        // printing part
+    public void printSeats(int[][] plane, int[][] limit, int passengers) {
         System.out.println("\nW - Window seats");
         System.out.println("M - Middle seats");
         System.out.println("A - Aisle seats");
@@ -120,7 +138,7 @@ public class TestMain1 {
                         System.out.print("__ ");  // empty seat.
                     }
                 } else {
-                    System.out.print("   ");  // There is no seat.
+                    System.out.print("   ");  // This is not a seat.
                 }
             }
             if(row == -1) {
@@ -132,7 +150,6 @@ public class TestMain1 {
         if(passengers > numOfSeats) {
             System.out.printf("Sorry! There are no seats available for %d passengers.", passengers - numOfSeats);
         }
-        scanner.close();
     }
 }
 
